@@ -1,7 +1,39 @@
 import React from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  Switch,
+} from 'react-router-dom';
+import NewPlace from './places/pages/NewPlace/NewPlace';
+import UpdatePlace from './places/pages/UpdatePlace/UpdatePlace';
+import UserPlaces from './places/pages/UserPlaces';
+import MainNavigation from './shared/components/Navigation/MainNavigation/MainNavigation';
+import User from './user/pages/User';
 
-function App() {
-  return <h1>Let's start!</h1>;
-}
+const App = () => {
+  return (
+    <Router>
+      <MainNavigation />
+      <main>
+        <Switch>
+          <Route path="/" exact>
+            <User />
+          </Route>
+          <Route path="/:userId/places" exact>
+            <UserPlaces />
+          </Route>
+          <Route path="/places/new" exact>
+            <NewPlace />
+          </Route>
+          <Route path="/places/:placeId" exact>
+            <UpdatePlace />
+          </Route>
+          <Redirect to="/" />
+        </Switch>
+      </main>
+    </Router>
+  );
+};
 
 export default App;
