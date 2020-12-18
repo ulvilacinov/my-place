@@ -4,7 +4,7 @@ import UsersList from '../components/UsersList/UsersList';
 const User = () => {
   const USERS = [
     {
-      id: 1,
+      id: 'u1',
       name: 'Ulvi Lachinov',
       image: 'https://images.gr-assets.com/users/1531816982p6/77442664.jpg',
       places: 3,
