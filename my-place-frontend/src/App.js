@@ -1,36 +1,37 @@
-import React, { useState, useCallback } from 'react';
+import React, { Suspense } from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Redirect,
   Switch,
 } from 'react-router-dom';
-import NewPlace from './places/pages/NewPlace/NewPlace';
-import UpdatePlace from './places/pages/UpdatePlaces/UpdatePlaces';
-import UserPlaces from './places/pages/UserPlaces';
+//import NewPlace from './places/pages/NewPlace/NewPlace';
+//import UpdatePlace from './places/pages/UpdatePlaces/UpdatePlaces';
+//import UserPlaces from './places/pages/UserPlaces';
 import MainNavigation from './shared/components/Navigation/MainNavigation/MainNavigation';
-import Auth from './user/pages/Auth/Auth';
-import User from './user/pages/User';
+import LoadingSpinner from './shared/components/UIElements/LoadingSpinner/LoadingSpinner';
+//import Auth from './user/pages/Auth/Auth';
+//import User from './user/pages/User';
 import { AuthContext } from './shared/context/auth-context';
+import { useAuth } from './shared/hooks/auth-hook';
+
+const Users = React.lazy(() => import('./user/pages/User'));
+const NewPlace = React.lazy(() => import('./places/pages/NewPlace/NewPlace'));
+const UpdatePlace = React.lazy(() =>
+  import('./places/pages/UpdatePlaces/UpdatePlaces')
+);
+const UserPlaces = React.lazy(() => import('./places/pages/UserPlaces'));
+const Auth = React.lazy(() => import('./user/pages/Auth/Auth'));
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const login = useCallback(() => {
-    setIsLoggedIn(true);
-  }, []);
-
-  const logout = useCallback(() => {
-    setIsLoggedIn(false);
-  }, []);
-
+  const { token, login, logout, userId } = useAuth();
   let routes;
 
-  if (isLoggedIn) {
+  if (token) {
     routes = (
       <Switch>
         <Route path="/" exact>
-          <User />
+          <Users />
         </Route>
         <Route path="/:userId/places" exact>
           <UserPlaces />
@@ -48,7 +49,7 @@ const App = () => {
     routes = (
       <Switch>
         <Route path="/" exact>
-          <User />
+          <Users />
         </Route>
         <Route path="/:userId/places" exact>
           <UserPlaces />
@@ -62,11 +63,27 @@ const App = () => {
   }
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn: isLoggedIn, login: login, logout: logout }}
+      value={{
+        isLoggedIn: !!token,
+        token: token,
+        userId: userId,
+        login: login,
+        logout: logout,
+      }}
     >
       <Router>
         <MainNavigation />
-        <main>{routes}</main>
+        <main>
+          <Suspense
+            fallback={
+              <div className="center">
+                <LoadingSpinner />
+              </div>
+            }
+          >
+            {routes}
+          </Suspense>
+        </main>
       </Router>
     </AuthContext.Provider>
   );
